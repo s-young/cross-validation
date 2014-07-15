@@ -7,26 +7,28 @@ import numpy as np
 import random
 import math
 from argparse import ArgumentParser
+from collections import Counter
 
 def parse_args():
     'Parse the command line arguments for the program.'
     parser = ArgumentParser(
         description="Cross validation for csv and txt files")
     parser.add_argument('--CVfolds', type=int,
-        help='number of cv folds', nargs='+', default=3)
+        help='number of cv folds', default=3)
     parser.add_argument('--genofile', required=True, type=str,
         help='Input Genotype File')
     parser.add_argument('--phenfile', required=True, type=str,
        help='Input Phenotype File')
-    parser.add_argument('--ridge', type=int, default=[0, -5],
+    parser.add_argument('--ridge', type=int, default=range(-3,3,2),
         nargs='+', help='ridge parameter')
+    parser.add_argument('--it', type =int, default = 50,
+        help = 'number of iterations')
     return parser.parse_args()
 
 def get_genotype(gen_filename):
     'Read the input genotype file.'
     genotype = np.genfromtxt(gen_filename, delimiter=' ')
     print(gen_filename)
-    #print(genotype)
     x = np.transpose(genotype)
     return x
 
@@ -41,6 +43,7 @@ def get_phenotype(phen_filename):
     return y 
 
 def rr(xtrain, ytrain, xtest, ridgepara):
+    'Ridge regression program for a given ridge parameter.'
     a = 10 ** np.array(ridgepara)
     Imat = a * np.mat(np.eye(len(xtrain)))
     xt = np.transpose(xtrain)
@@ -51,7 +54,7 @@ def rr(xtrain, ytrain, xtest, ridgepara):
     return ypred
 
 def crossval(k,xtrain,ytrain, ridgepara):
-    ' K folds cross validation.'
+    'K folds cross validation for a set of given parameters.'
     n = len(xtrain)
     indices = np.arange(n)
     p = len(ridgepara)
@@ -77,26 +80,37 @@ def main():
     args = parse_args()
     k = args.CVfolds
     x = get_genotype(args.genofile)
-    #genotype = np.genfromtxt('myAveImpGenotype_wheat183.csv', delimiter=' ')
-    #x = np.transpose(genotype)
-    print(x)
     m = len(x)
     print(x.shape)
     y = get_phenotype(args.phenfile)
     whole = random.sample(np.arange(m), m)
     trainid = whole[0:m*3/4]
     testid = whole[m*3/4:]
-
     xtrain = x[trainid, :]
     xtest = x[testid, :]
     ytrain = y[trainid]
     ytest = y[testid]
-    optpara = crossval(k,xtrain,ytrain, args.ridge)
-    ypred = rr(xtrain, ytrain,xtest, optpara)
-    cor = np.corrcoef(np.matrix(ytest), np.transpose(ypred))
-    corr_pred = cor[1,0]
-    print('The optimal parameter by CV is %f' + '\n') % 10**optpara
-    print('Pearson''s correlation btw true and pred is %f') % corr_pred
+    paras = args.ridge
+
+    Iter = args.it
+    predictions = []
+    optparameters = []
+    correlations = []
+    for iteration in range(Iter):
+        optpara = crossval(k,xtrain,ytrain, args.ridge)
+	optparameters.append(optpara)
+        ypred = rr(xtrain, ytrain,xtest, optpara)
+        predictions.append(ypred)
+        cor = np.corrcoef(np.matrix(ytest), np.transpose(ypred))
+        corr_pred = cor[1,0]
+        correlations.append(corr_pred)
+    lens =[]
+    for p in range(len(paras)):
+        freqofpara = optparameters.count(paras[p])
+        lens.append(freqofpara)
+    opt = paras[lens.index(max(lens))]
+    print('The optimal parameter by CV is %f' + '\n') % 10**opt
+    print('Pearson''s correlation btw true and pred is %f') % np.mean(correlations)
 
 if __name__ == '__main__':
     main()
