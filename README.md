@@ -2,4 +2,4 @@
 
 **K is an integer greater than 2.**
 
-**The program is wrapped in _ridge regression_, defined as _rr()_ function ** 
+**The program is wrapped in _ridge regression_, defined as _rr()_ function.** 
