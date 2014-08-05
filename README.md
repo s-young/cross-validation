@@ -1,4 +1,4 @@
-## This is program for K-fold cross validation.
+### This is program for K-fold cross validation
 
 **K is an integer greater than 2.**
 
@@ -6,4 +6,4 @@
 
 **It can be applied in a variety of user-defined regression functions.**
 
-**For instance, _Lasso regression_ is available at https://github/s-young/lasso.**
+**For instance, _Lasso regression_ is available at (https://github/s-young/lasso).**
