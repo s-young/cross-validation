@@ -2,4 +2,4 @@
 
 **K is an integer greater than 2.**
 
-**The program is wrapped in ridge regression, the code is available at https://github.com/s-young/ridge.** 
+**The program is wrapped in _ridge regression_, defined as _rr()_ function ** 
