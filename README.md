@@ -6,4 +6,4 @@
 
 **It can be applied in a variety of user-defined regression functions.**
 
-**For instance, _Lasso regression_ is available at (https://github/s-young/lasso).**
+**For instance, _Lasso regression_ is available at [here] (https://github/s-young/lasso).**
