@@ -1,4 +1,4 @@
-# usage: python cv.py --genofile 'myAveImpGenotype_wheat183.csv' --phenofile 'y8new.txt' [--CVfolds 5 --ridge 0 -3 -9]
+# usage: python cv.py --genofile 'myAveImpGenotype_wheat183.csv' --phenfile 'y8new.txt' [--CVfolds 5 --ridge 0 -3 -9]
 
 import sys
 import csv
@@ -19,10 +19,10 @@ def parse_args():
         help='Input Genotype File')
     parser.add_argument('--phenfile', required=True, type=str,
        help='Input Phenotype File')
-    parser.add_argument('--ridge', type=int, default=range(-3,3,2),
-        nargs='+', help='ridge parameter')
+    parser.add_argument('--ridge', type=int, default=range(-3,3),
+       help='ridge parameters') 
     parser.add_argument('--it', type =int, default = 50,
-        help = 'number of iterations')
+       help = 'number of iterations')
     return parser.parse_args()
 
 def get_genotype(gen_filename):
@@ -74,6 +74,7 @@ def crossval(k,xtrain,ytrain, ridgepara):
 
     corr_sum = map(sum,zip(*corr_output))
     optpara = ridgepara[corr_sum.index(max(corr_sum))]
+    # print('The opt para is %f') % 10**optpara
     return optpara   
 
 def main():
