@@ -21,7 +21,7 @@ def parse_args():
        help='Input Phenotype File')
     parser.add_argument('--ridge', type=int, default=range(-3,3),
        help='ridge parameters') 
-    parser.add_argument('--it', type =int, default = 50,
+    parser.add_argument('--it', type =int, default = 10,
        help = 'number of iterations')
     return parser.parse_args()
 
@@ -84,20 +84,21 @@ def main():
     m = len(x)
     print(x.shape)
     y = get_phenotype(args.phenfile)
-    whole = random.sample(np.arange(m), m)
-    trainid = whole[0:m*3/4]
-    testid = whole[m*3/4:]
-    xtrain = x[trainid, :]
-    xtest = x[testid, :]
-    ytrain = y[trainid]
-    ytest = y[testid]
     paras = args.ridge
 
     Iter = args.it
     predictions = []
     optparameters = []
     correlations = []
+    print(':-))) Ridge Regression with CV in %i iterations') % Iter
     for iteration in range(Iter):
+        whole = random.sample(np.arange(m), m)
+        trainid = whole[0:m*3/4]
+        testid = whole[m*3/4:]
+        xtrain = x[trainid, :]
+        xtest = x[testid, :]
+        ytrain = y[trainid]
+        ytest = y[testid]
         optpara = crossval(k,xtrain,ytrain, args.ridge)
 	optparameters.append(optpara)
         ypred = rr(xtrain, ytrain,xtest, optpara)
@@ -105,13 +106,16 @@ def main():
         cor = np.corrcoef(np.matrix(ytest), np.transpose(ypred))
         corr_pred = cor[1,0]
         correlations.append(corr_pred)
-    lens =[]
+    freqofpara =[]
     for p in range(len(paras)):
-        freqofpara = optparameters.count(paras[p])
-        lens.append(freqofpara)
-    opt = paras[lens.index(max(lens))]
-    print('The optimal parameter by CV is %f' + '\n') % 10**opt
-    print('Pearson''s correlation btw true and pred is %f') % np.mean(correlations)
+        freqofpara.append (optparameters.count(paras[p]))
+    opt = paras[freqofpara.index(max(freqofpara))]
+    print('Output: The most frequently selected optimal parameter by CVs is %f' ) % 10**opt
+    subcorr =[]
+    for q in range(len(correlations)):
+        if optparameters[q] == opt:
+           subcorr.append(correlations[q])
+    print('Corresponding Pearson''s correlation btw true and pred is %f'+ '\n') % np.mean(subcorr)
 
 if __name__ == '__main__':
     main()
